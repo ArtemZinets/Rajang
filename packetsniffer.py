@@ -1,6 +1,6 @@
 # This is a "retail" script where packet sniffer functionality is implemented
 
-# This is a message to Ella.
+# This is a message to Ella.    =   =   =   =   =   =   =   =   =   =   =   =   =   =   =   =   =   =   =   =   =
 # This file is where you will write all functions for the packet sniffer functionality.
 
 # The way you will intercept packets is with a library called `scapy`. It has a function called `sniff()` that blocks the thread and calls a function you pass to argument `prn` every time a packet is intercepted, intercepted packet is passed to that function.
