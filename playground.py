@@ -6,3 +6,4 @@ log = []
 # This function is going to append entries to log.
 def add_to_log(entry : dict):
     log.append(entry)
+    print(entry)

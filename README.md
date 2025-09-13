@@ -11,3 +11,5 @@ All this functionality is shipped as a Python program with a Qt-powered UI
 
 # Dependencies
 To use internet packet sniffing functionality, you must install [Npcap](https://npcap.com/#download) **if you are running Windows** or [libpcap](https://github.com/the-tcpdump-group/libpcap) **if you are running Linux** (do `sudo apt-get install libpcap-dev`)
+
+To use disk monitoring, you must install [???](???) **if you are using Windows** or [auditd](???) **if you are running Linux** (do `sudo apt-get install auditd`)

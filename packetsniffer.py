@@ -1,47 +1,78 @@
-# This is a "retail" script where packet sniffer functionality is implemented
-
-# This is a message to Ella.    =   =   =   =   =   =   =   =   =   =   =   =   =   =   =   =   =   =   =   =   =
-# This file is where you will write all functions for the packet sniffer functionality.
-
-# The way you will intercept packets is with a library called `scapy`. It has a function called `sniff()` that blocks the thread and calls a function you pass to argument `prn` every time a packet is intercepted, intercepted packet is passed to that function.
-# So, your objective is, basically, to write that illustrous function. Use static typing so that intellisense (autocomplete) works and suggests function names.
-# Note that `scapy` is not exactly a library, but rather a wrapper for a program called Npcap/libpcap (look at readme.md), so without those, you'll get errors
-
-# What you are going to do specifically is, for each incoming packet, you will construct a dictionary object pass it in a `log()` function call. The snippet below seems complete, but
-# you're going to make it look pretty and very verbose. In fact, the log entries have to be as follows:
-sample_packet : dict = {
-    "time": "Timestamp. Figure this out yourself, I'm too lazy lul",
-    "sender": "A tuple. IP/port of the sender client. E.g. (\"127.0.0.1\",25565)",
-    "receiver": "Same but IP/port of the receiving client",
-    "is_outbound": "A bool. true if sender is this machine. How to figure that out? Figure it out yourself, I'm too lazy lul.",
-    "location": "Geopolitical location of the other machine. There are libraries out there that will return approximate location of the machine down to the city",
-    "reverse_dns_lookup": "Website of the other machine. E.g. if IP of the other machine is 74.125.68.138, this field should be set to google.com",
-    "port_owner": "PID of the process that has opened the port over which the packet was sent/received.",
-    "content": "Try to write the payload content here. This might be _difficult_ but good luck anyways :D"
-}
-
-# This is the most basic snippet. vvvvvvvvvvvvvvvvvvvv
-import scapy # The actual library
-from scapy.all import sniff # Function sniff()
-from scapy.packet import Packet # Class Packet
+from scapy.all import sniff
+from scapy.packet import Packet
 from playground import add_to_log as log # This is a function that writes a packet to the log. It's a function I wrote and it's in playground.py right now
+from datetime import datetime
 
 
-# This function gets called every time sniff() detects a packet. You pass its name to argument `prn` in sniff(). And yes, the name sounds funny, but it probably stands for "Packet ReturN" or whatever
-# 99% of your work will be concentrated on this function
-def test(pkt : Packet): # pkt : Packet - static typing. By specifying type of parameter `pkt`, IntelliSense will give you relevant autocomplete functions so that you don't have to use docs too much.
-    print(pkt.summary()) # Basic information such as direction (sender IP/port, receiver IP/port)
-    print(pkt.json()) # More information + actual payload.
-    print() # BLank space to tell entries apart easier
+def geolocate_ip(ip : str):
+    """
+    Uses a geolocation library to provide the country and city where the IP might be located.
 
-    # Putting packet in the log...
+    Args:
+        ip (str): IP address we're looking up
+    Returns:
+        str: Country (and city?) where the machine might be located
+    """
+
+
+def reverse_DNS_lookup(ip : str):
+    """
+    Uses a reverse DNS lookup library to tell if there is a URL address associated with the given IP.
+
+    Args:
+        ip (str): You won't believe it...
+    Returns:
+        str: URL associated with IP (e.g. if IP is 70.12.34.56, return is "google.com")
+    """
+
+
+def write_intercepted_packet_to_log(intercepted_packet : Packet):
+    """
+    Writes information about the intercepted packet to the Log.
+
+    Args:
+        intercepted_packet (scapy.packet.Packet): Packet object of the intercepted packet.
+    Returns:
+        None
+    """
+
+    # "instance data"
+    timestamp = intercepted_packet.time
+    protocol : str
+
+    source_ip : str = intercepted_packet["IP"].src
+    destination_ip : str = intercepted_packet["IP"].dst
+    source_port : int
+    destination_port : int
+
+    direction : str = "Inbound"
+
+    # Get the protocol that the packet was sent with (TCP/UDP) and get a port from that.
+    if intercepted_packet.haslayer("TCP"):
+        protocol = "TCP"
+        source_port = intercepted_packet["TCP"].sport
+        destination_port = intercepted_packet["TCP"].dport
+    elif intercepted_packet.haslayer("UDP"):
+        protocol = "UDP"
+        source_port = intercepted_packet["UDP"].sport
+        destination_port = intercepted_packet["UDP"].dport
+    
+    # We assume that the packet is inbound but this check will check if it's actually outgoing
+    if source_ip.split(".")[0] == source_ip.split(".")[1] and (source_ip.split(".")[0] == "10" or source_ip.split(".")[0] == "127" or source_ip.split(".")[0] == "255"):
+        direction = "Outgoing"
+        if destination_ip.split(".")[0] == destination_ip.split(".")[1] and (destination_ip.split(".")[0] == "10" or destination_ip.split(".")[0] == "127" or destination_ip.split(".")[0] == "255"):
+            direction = "Local"
+
+    # Put everything in the log
     log({
-        "content": pkt.summary()
-        # ...
+        "timestamp": str(datetime.fromtimestamp(intercepted_packet.time)), # type: ignore
+        "protocol": protocol,
+        "origin": (source_ip,source_port),
+        "destination": (destination_ip,destination_port),
+        "direction": direction,
+        "geolocation": geolocate_ip(source_ip),
+        "url_lookup": reverse_DNS_lookup(source_ip)
     })
 
-# This function will start a loop in which it will keep calling whatever function you passed to `prn` every time you receive/send a package
-sniff(prn=test) # Final cutoff.
 
-# Nothing here will run befcause of sniff blocking the thread
-print("HELP I CANT RUN SNIFF BLOCKED THE THREAD! :'(")
+sniff(prn=write_intercepted_packet_to_log)
