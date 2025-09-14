@@ -16,9 +16,15 @@ def geolocate_ip(ip : str):
     """
     response = requests.get("http://ip-api.com/json/" + ip)
     info = response.json()
-    country = info.get("country") #Can alternatively use countryCode for shorter response
-    city = info.get("city")
-    location = city + ", " + country
+    status = info.get("status")
+    
+    if status == "success":
+        location = info.get("city") + ", " + info.get("country")
+        
+    else:
+        #If the IP's location is inaccessible to us, return reason why
+        location = info.get("message")  
+        
     return location
     
 
@@ -34,6 +40,7 @@ def reverse_DNS_lookup(ip : str):
     """
     #Ella will try to figure this out now
     #Basically, given the IP, do rev DNS lookup. Likely gonna need new library
+    pass
 
 
 def write_intercepted_packet_to_log(intercepted_packet : Packet):
