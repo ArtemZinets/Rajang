@@ -1,18 +1,26 @@
+import requests
 from scapy.all import sniff
 from scapy.packet import Packet
 from playground import add_to_log as log # This is a function that writes a packet to the log. It's a function I wrote and it's in playground.py right now
 from datetime import datetime
 
 
-def geolocate_ip(ip : str):
-    """
-    Uses a geolocation library to provide the country and city where the IP might be located.
+"""
+Uses a geolocation library to provide the country and city where the IP might be located.
 
-    Args:
-        ip (str): IP address we're looking up
-    Returns:
-        str: Country (and city?) where the machine might be located
-    """
+Args:
+    ip (str): IP address we're looking up
+Returns:
+    str: Country (and city?) where the machine might be located
+"""
+def geolocate_ip(ip : str):
+    response = requests.get("http://ip-api.com/json/" + ip)
+    data = response.json()
+    country = data.get("country") #Can alternatively use countryCode for shorter response
+    city = data.get("city")
+    location = city + ", " + country
+    return location
+    
 
 
 def reverse_DNS_lookup(ip : str):
