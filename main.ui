@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>878</width>
+    <height>715</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QFormLayout" name="formLayout">
+    <item row="0" column="0" colspan="2">
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QTabWidget" name="LogPanel">
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="internet">
+         <attribute name="title">
+          <string>Internet Traffic</string>
+         </attribute>
+         <layout class="QFormLayout" name="formLayout_2">
+          <item row="0" column="0" colspan="2">
+           <widget class="QTableView" name="internetActivityTable">
+            <property name="editTriggers">
+             <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+            </property>
+            <property name="alternatingRowColors">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="disk">
+         <attribute name="title">
+          <string>Disk Traffic</string>
+         </attribute>
+         <layout class="QFormLayout" name="formLayout_3">
+          <item row="0" column="0" colspan="2">
+           <widget class="QTableView" name="diskActivityTable"/>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="PIDTrackerPanel">
+        <item>
+         <widget class="QLabel" name="trackedPIDLabel">
+          <property name="text">
+           <string>Tracked PID:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="trackedPID"/>
+        </item>
+        <item>
+         <widget class="QPushButton" name="startTrackingPID">
+          <property name="text">
+           <string>Start Tracking</string>
+          </property>
+          <property name="flat">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

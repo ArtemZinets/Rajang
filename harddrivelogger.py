@@ -52,7 +52,7 @@ def audit_function():
                     timestamp : str = header[header.find("msg=audit(")+len("msg=audit("):header.rfind(":")]
                     transaction["timestamp"] = timestamp
 
-                    transaction["event_id"] = event_id
+                    transaction["event_id"] = int(event_id)
                     item_number : int = 0
                     if transaction_type == "PROCTITLE":
                         transaction["executable"] = body[body.find("=")+1:-1]
@@ -69,13 +69,14 @@ def audit_function():
                         transaction["success"] = body[body.find("success=")+8:body.find("exit=")-1]
                         transaction["kernel_return"] = body[body.find("exit=")+5:body.find("a0=")-1]
                         transaction["arguments"] = body[body.find("a0="):body.find("items=")-1]
-                        transaction["user_id"] = body[body.find("uid=")+4:body.find("gid=")-1]
-                        transaction["authed_user_id"] = body[body.find("auid=")+5:body.find("uid=")-1]
-                        transaction["process_id"] = body[body.find(" pid=")+5:body.find("auid=")-1]
+                        transaction["user_id"] = body[body.find(" uid=")+5:body.find("gid=")-1]
+                        transaction["authed_user_id"] = body[body.find("auid=")+5:body.find(" uid=")]
+                        transaction["process_id"] = int(body[body.find(" pid=")+5:body.find("auid=")-1])
                 
                 if not cancelled:
                     if not (transaction["executable"][:transaction["executable"].find("--event")] == "sudo ausearch --interpret "):
                         log(transaction)
+                        print(transaction)
                         print()
             else:
                 print("Error! ",audit_intepreter.stderr)
@@ -86,7 +87,7 @@ def audit_function():
 start_monitoring()
 auditter = multiprocessing.Process(target=audit_function)
 auditter.start()
-auditter.join(60) # DO NOT CTRL+C THE PROGRAM
+auditter.join(15) # DO NOT CTRL+C THE PROGRAM
 auditter.terminate()
 stop_monitoring()
 
