@@ -38,9 +38,16 @@ def reverse_DNS_lookup(ip : str):
     Returns:
         str: URL associated with IP (e.g. if IP is 70.12.34.56, return is "google.com")
     """
-    #Ella will try to figure this out now
-    #Basically, given the IP, do rev DNS lookup. Likely gonna need new library
-    pass
+    try:
+        name = socket.gethostbyaddr(ip)[0]
+        
+    except socket.gaierror:
+        name = "Invalid IP"
+        
+    except socket.herror:
+        name = "Host error"
+        
+    return name
 
 
 def write_intercepted_packet_to_log(intercepted_packet : Packet):
