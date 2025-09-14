@@ -15,23 +15,24 @@ Returns:
 """
 def geolocate_ip(ip : str):
     response = requests.get("http://ip-api.com/json/" + ip)
-    data = response.json()
-    country = data.get("country") #Can alternatively use countryCode for shorter response
-    city = data.get("city")
+    info = response.json()
+    country = info.get("country") #Can alternatively use countryCode for shorter response
+    city = info.get("city")
     location = city + ", " + country
     return location
     
 
+"""
+Uses a reverse DNS lookup library to tell if there is a URL address associated with the given IP.
 
+Args:
+    ip (str): You won't believe it...
+Returns:
+    str: URL associated with IP (e.g. if IP is 70.12.34.56, return is "google.com")
+"""
 def reverse_DNS_lookup(ip : str):
-    """
-    Uses a reverse DNS lookup library to tell if there is a URL address associated with the given IP.
-
-    Args:
-        ip (str): You won't believe it...
-    Returns:
-        str: URL associated with IP (e.g. if IP is 70.12.34.56, return is "google.com")
-    """
+    #Ella will try to figure this out now
+    #Basically, given the IP, do rev DNS lookup. Likely gonna need new library
 
 
 def write_intercepted_packet_to_log(intercepted_packet : Packet):
