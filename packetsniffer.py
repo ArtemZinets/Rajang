@@ -5,25 +5,77 @@ from playground import add_to_log as log # This is a function that writes a pack
 from datetime import datetime
 
 
-def geolocate_ip(ip : str):
+ip_dict = {
+    "8.8.8.8": {
+        "location": "Ashburn, United States",
+        "name": "dns.google"
+    }
+}
+
+def locate_short(ip : str):
     """
     Uses a geolocation library to provide the country and city where the IP might be located.
+    -> This is a helper function for geolocate_ip
     
     Args:
         ip (str): IP address we're looking up
     Returns:
-        str: Country (and city?) where the machine might be located
+        str: Country and city where the machine might be located
     """
     response = requests.get("http://ip-api.com/json/" + ip)
     info = response.json()
     status = info.get("status")
-    
     if status == "success":
-        location = info.get("city") + ", " + info.get("country")
+        country = info.get("country")
+        city = info.get("city")
+        location = city + ", " + country
+    else:
+        location = info.get("message")
+    return location
+
+
+
+def lookup_short(ip : str):
+    """
+    Uses a reverse DNS lookup library to tell if there is a URL address associated with the given IP.
+    -> This is a helper function for reverse_DNS_lookup
+    
+    Args:
+        ip (str): You won't believe it...
+    Returns:
+        str: URL associated with IP
+    """
+    try:
+        name = socket.gethostbyaddr(ip)[0]
+    except socket.gaierror:
+        name = "Invalid IP"
+    except socket.herror:
+        name = "Host error"
+    return name
+
+
+
+def geolocate_ip(ip : str):
+    """
+    Uses function locate_short to provide country and city of the IP, as well as add unknown IPs to the dictionary ip_dict
+    
+    Args:
+        ip (str): IP address we're looking up
+    Returns:
+        str: Country and city where the machine might be located
+    """
+    have_ip = False
+    for key in ip_dict.keys():
+        if key == ip:
+            have_ip = True
+
+    if have_ip:
+        location = ip_dict.get(ip).get("location")
         
     else:
-        #If the IP's location is inaccessible to us, return reason why
-        location = info.get("message")  
+        location = locate_short(ip)
+        name = lookup_short(ip)      
+        ip_dict.update({ip: {"location": location, "name": name}})
         
     return location
     
@@ -31,23 +83,29 @@ def geolocate_ip(ip : str):
 
 def reverse_DNS_lookup(ip : str):
     """
-    Uses a reverse DNS lookup library to tell if there is a URL address associated with the given IP.
+    Uses function lookup_short to providethe URL address associated with the given IP, as well as add unknown IPs to the dictionary ip_dict
     
     Args:
-        ip (str): You won't believe it...
+        ip (str): IP of which we want to find the associated URL
     Returns:
         str: URL associated with IP (e.g. if IP is 70.12.34.56, return is "google.com")
     """
-    try:
-        name = socket.gethostbyaddr(ip)[0]
+
+    have_ip = False
+    for key in ip_dict.keys():
+        if key == ip:
+            have_ip = True
+
+    if have_ip:
+        name = ip_dict.get(ip).get("name")
         
-    except socket.gaierror:
-        name = "Invalid IP"
-        
-    except socket.herror:
-        name = "Host error"
+    else:
+        name = lookup_short(ip)
+        location = locate_short(ip) 
+        ip_dict.update({ip: {"location": location, "name": name}})
         
     return name
+
 
 
 def write_intercepted_packet_to_log(intercepted_packet : Packet):
