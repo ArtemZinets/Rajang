@@ -5,15 +5,15 @@ from playground import add_to_log as log # This is a function that writes a pack
 from datetime import datetime
 
 
-"""
-Uses a geolocation library to provide the country and city where the IP might be located.
-
-Args:
-    ip (str): IP address we're looking up
-Returns:
-    str: Country (and city?) where the machine might be located
-"""
 def geolocate_ip(ip : str):
+    """
+    Uses a geolocation library to provide the country and city where the IP might be located.
+    
+    Args:
+        ip (str): IP address we're looking up
+    Returns:
+        str: Country (and city?) where the machine might be located
+    """
     response = requests.get("http://ip-api.com/json/" + ip)
     info = response.json()
     country = info.get("country") #Can alternatively use countryCode for shorter response
@@ -22,15 +22,16 @@ def geolocate_ip(ip : str):
     return location
     
 
-"""
-Uses a reverse DNS lookup library to tell if there is a URL address associated with the given IP.
 
-Args:
-    ip (str): You won't believe it...
-Returns:
-    str: URL associated with IP (e.g. if IP is 70.12.34.56, return is "google.com")
-"""
 def reverse_DNS_lookup(ip : str):
+    """
+    Uses a reverse DNS lookup library to tell if there is a URL address associated with the given IP.
+    
+    Args:
+        ip (str): You won't believe it...
+    Returns:
+        str: URL associated with IP (e.g. if IP is 70.12.34.56, return is "google.com")
+    """
     #Ella will try to figure this out now
     #Basically, given the IP, do rev DNS lookup. Likely gonna need new library
 
