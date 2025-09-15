@@ -108,6 +108,34 @@ def reverse_DNS_lookup(ip : str):
 
 
 
+def find_PID(src_port : int, dst_port : int, direction : str):
+    """
+    This SHOULD return the PID for the local port
+    
+    Args:
+        src_port (int): The number for the source port
+        dst_port (int): The number for the destination port
+        direction (str): Whether the local system is receiving (Incoming) or sending (Outgoing) the packet
+    Returns:
+        pid: The value associated with the PID of the local port
+        None: If there is no local port found, reutrn no value
+    """
+    conns = psutil.net_connections()
+    loc_port = None
+    if direction == "Incoming":
+        loc_port = dst_port
+    elif direction == "Outgoing":
+        loc_port = src_port
+
+    for c in conns:
+        if c.laddr.port == loc_port:
+            pid = c.pid
+            return pid
+
+    return None
+
+
+
 def write_intercepted_packet_to_log(intercepted_packet : Packet):
     """
     Writes information about the intercepted packet to the Log.
