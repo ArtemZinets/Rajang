@@ -43,11 +43,11 @@ if platform.system() == "Linux":
     auditter = multiprocessing.Process(target=harddrivelogger_linux.audit_function,args=(auditter_stop_flag,auditter_queue))
     auditter.start()
 
-# Set up internet monitoring
-packetsniffer_stop_flag = multiprocessing.Event()
-packetsniffer_queue = multiprocessing.Queue()
-packetsniffer_thread = multiprocessing.Process(target=packetsniffer.loop,args=(packetsniffer_stop_flag,packetsniffer_queue))
-packetsniffer_thread.start()
+    # Set up internet monitoring
+    packetsniffer_stop_flag = multiprocessing.Event()
+    packetsniffer_queue = multiprocessing.Queue()
+    packetsniffer_thread = multiprocessing.Process(target=packetsniffer.loop,args=(packetsniffer_stop_flag,packetsniffer_queue))
+    packetsniffer_thread.start()
 
 # Display UI
 ui_loader : QUiLoader = QUiLoader()
@@ -81,15 +81,16 @@ internet_activity_table.setModel(internet_activity_table_model)
 
 # Setup the log checker thread and start it
 def ui_log_refresh():
-    while True:
-        try:
-            hdl_entry = auditter_queue.get_nowait()
-            hdl_row = []
-            for item in [hdl_entry["timestamp"],hdl_entry["event_id"],hdl_entry["executable"],hdl_entry["syscall"],hdl_entry["kernel_return"],hdl_entry["user_id"],hdl_entry["authed_user_id"],hdl_entry["process_id"]]:
-                hdl_row.append(QStandardItem(str(item)))
-            disk_activity_table_model.insertRow(0,hdl_row)
-        except Exception:
-            break
+    if auditter is not None:
+        while True:
+            try:
+                hdl_entry = auditter_queue.get_nowait()
+                hdl_row = []
+                for item in [hdl_entry["timestamp"],hdl_entry["event_id"],hdl_entry["executable"],hdl_entry["syscall"],hdl_entry["kernel_return"],hdl_entry["user_id"],hdl_entry["authed_user_id"],hdl_entry["process_id"]]:
+                    hdl_row.append(QStandardItem(str(item)))
+                disk_activity_table_model.insertRow(0,hdl_row)
+            except Exception:
+                break
     while True:
         try:
             net_entry = packetsniffer_queue.get_nowait()
@@ -110,9 +111,10 @@ timer.start(100)
 app.exec()
 
 timer.stop()
-auditter_stop_flag.set()
-auditter.join()
-harddrivelogger_linux.stop_monitoring()
+if auditter is not None:
+    auditter_stop_flag.set()
+    auditter.join()
+    harddrivelogger_linux.stop_monitoring()
 packetsniffer_stop_flag.set()
 packetsniffer_thread.join()
 
