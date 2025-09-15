@@ -1,9 +1,16 @@
 import requests
+import socket
+import psutil
 from scapy.all import sniff
 from scapy.packet import Packet
-from playground import add_to_log as log # This is a function that writes a packet to the log. It's a function I wrote and it's in playground.py right now
+import multiprocessing
 from datetime import datetime
-
+#   =   =   =   =   =   =   =   =   =
+# Internet Activity Logging Library
+# by Ella Sooley
+#
+# September 14, 2025
+#   =   =   =   =   =   =   =   =   =
 
 ip_dict = {
     "8.8.8.8": {
@@ -11,6 +18,7 @@ ip_dict = {
         "name": "dns.google"
     }
 }
+entry = {}
 
 def locate_short(ip : str):
     """
@@ -70,7 +78,9 @@ def geolocate_ip(ip : str):
             have_ip = True
 
     if have_ip:
-        location = ip_dict.get(ip).get("location")
+        _location = ip_dict.get(ip)
+        assert _location is not None
+        location = _location.get("location")
         
     else:
         location = locate_short(ip)
@@ -97,7 +107,9 @@ def reverse_DNS_lookup(ip : str):
             have_ip = True
 
     if have_ip:
-        name = ip_dict.get(ip).get("name")
+        _name = ip_dict.get(ip)
+        assert _name is not None
+        name = _name.get("name")
         
     else:
         name = lookup_short(ip)
@@ -128,7 +140,7 @@ def find_PID(src_port : int, dst_port : int, direction : str):
         loc_port = src_port
 
     for c in conns:
-        if c.laddr.port == loc_port:
+        if c.laddr.port == loc_port: #type: ignore
             pid = c.pid
             return pid
 
@@ -145,6 +157,7 @@ def write_intercepted_packet_to_log(intercepted_packet : Packet):
     Returns:
         None
     """
+    global entry
 
     # "instance data"
     timestamp = intercepted_packet.time
@@ -174,15 +187,21 @@ def write_intercepted_packet_to_log(intercepted_packet : Packet):
             direction = "Local"
 
     # Put everything in the log
-    log({
+    entry = {
         "timestamp": str(datetime.fromtimestamp(intercepted_packet.time)), # type: ignore
         "protocol": protocol,
         "origin": (source_ip,source_port),
         "destination": (destination_ip,destination_port),
         "direction": direction,
         "geolocation": geolocate_ip(source_ip),
-        "url_lookup": reverse_DNS_lookup(source_ip)
-    })
+        "url_lookup": reverse_DNS_lookup(source_ip),
+        "pid": find_PID(source_port,destination_port,direction)
+    }
 
-
-sniff(prn=write_intercepted_packet_to_log)
+def loop(stop_trigger,queue):
+    while True:
+        if not stop_trigger.is_set():
+            sniff(prn=write_intercepted_packet_to_log,count=1)
+            queue.put(entry)
+        else:
+            return
