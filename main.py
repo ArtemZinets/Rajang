@@ -1,6 +1,7 @@
 import platform
 import multiprocessing
 import sys
+import os
 
 from PySide6.QtWidgets import QApplication, QTableView
 from PySide6.QtGui import QStandardItemModel, QStandardItem
@@ -40,7 +41,7 @@ packetsniffer_thread.start()
 
 # Display UI
 ui_loader : QUiLoader = QUiLoader()
-main_ui_file : QFile = QFile("./main.ui")
+main_ui_file : QFile = QFile(os.path.join(os.path.abspath("."),"main.ui"))
 
 # Setup the app
 app = QApplication(sys.argv)
