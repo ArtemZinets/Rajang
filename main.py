@@ -3,7 +3,7 @@ import multiprocessing
 import sys
 import os
 
-from PySide6.QtWidgets import QApplication, QTableView
+from PySide6.QtWidgets import QApplication, QTableView, QMessageBox
 from PySide6.QtGui import QStandardItemModel, QStandardItem
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import QFile, QTimer
@@ -16,6 +16,16 @@ import packetsniffer
 #
 # September 14, 2025
 #   =   =   =   =   =   =   =   =   =
+
+# Check for admin/root
+if platform.system() == "Linux":
+    if os.geteuid() != 0:
+        app = QApplication(sys.argv)
+        msg = QMessageBox()
+        msg.setWindowTitle("Access Error")
+        msg.setText("This program must be run as root")
+        msg.exec()
+        sys.exit(1)
 
 hdl_log_queue : list = []
 
@@ -41,7 +51,11 @@ packetsniffer_thread.start()
 
 # Display UI
 ui_loader : QUiLoader = QUiLoader()
-main_ui_file : QFile = QFile(os.path.join(os.path.abspath("."),"main.ui"))
+main_ui_file : QFile
+try:
+    main_ui_file = QFile(os.path.join(sys._MEIPASS,"main.ui")) #type: ignore
+except Exception:
+    main_ui_file = QFile(os.path.join(os.path.abspath("."),"main.ui"))
 
 # Setup the app
 app = QApplication(sys.argv)
