@@ -28,7 +28,7 @@ def stop_monitoring():
         print("Error occured when tried to stop auditting /home: ",result.stderr)
 
 
-def audit_function(stop_flag,queue):
+def audit_function(stop_flag, queue : multiprocessing.Queue):
     log = []
 
     audit_process : subprocess.Popen = subprocess.Popen(["tail","-f","/var/log/audit/audit.log"],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
