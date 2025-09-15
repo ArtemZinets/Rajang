@@ -1,4 +1,6 @@
 import requests
+import socket
+import psutil
 from scapy.all import sniff
 from scapy.packet import Packet
 from playground import add_to_log as log # This is a function that writes a packet to the log. It's a function I wrote and it's in playground.py right now
