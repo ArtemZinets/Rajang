@@ -111,10 +111,12 @@ timer.start(100)
 app.exec()
 
 timer.stop()
-if auditter is not None:
+try:
     auditter_stop_flag.set()
     auditter.join()
     harddrivelogger_linux.stop_monitoring()
+except Exception:
+    pass
 packetsniffer_stop_flag.set()
 packetsniffer_thread.join()
 
