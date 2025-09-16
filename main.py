@@ -2,6 +2,7 @@ import platform
 import multiprocessing
 import sys
 import os
+import ctypes
 
 from PySide6.QtWidgets import QApplication, QTableView, QMessageBox
 from PySide6.QtGui import QStandardItemModel, QStandardItem
@@ -26,6 +27,20 @@ if platform.system() == "Linux":
         msg.setText("This program must be run as root")
         msg.exec()
         sys.exit(1)
+elif platform.system() == "Windows":
+    admin_check = False
+    try:
+        admin_check = ctypes.windll.shell32.IsUserAnAdmin() != 0 #type: ignore
+    except Exception:
+        admin_check = False
+    if not admin_check:
+        app = QApplication(sys.argv)
+        msg = QMessageBox()
+        msg.setWindowTitle("Access Error")
+        msg.setText("This program must be run as root")
+        msg.exec()
+        sys.exit(1)
+
 
 hdl_log_queue : list = []
 
