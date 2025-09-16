@@ -58,11 +58,11 @@ if platform.system() == "Linux":
     auditter = multiprocessing.Process(target=harddrivelogger_linux.audit_function,args=(auditter_stop_flag,auditter_queue))
     auditter.start()
 
-    # Set up internet monitoring
-    packetsniffer_stop_flag = multiprocessing.Event()
-    packetsniffer_queue = multiprocessing.Queue()
-    packetsniffer_thread = multiprocessing.Process(target=packetsniffer.loop,args=(packetsniffer_stop_flag,packetsniffer_queue))
-    packetsniffer_thread.start()
+# Set up internet monitoring
+packetsniffer_stop_flag = multiprocessing.Event()
+packetsniffer_queue = multiprocessing.Queue()
+packetsniffer_thread = multiprocessing.Process(target=packetsniffer.loop,args=(packetsniffer_stop_flag,packetsniffer_queue))
+packetsniffer_thread.start()
 
 # Display UI
 ui_loader : QUiLoader = QUiLoader()
