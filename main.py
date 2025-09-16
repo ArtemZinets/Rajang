@@ -81,16 +81,15 @@ internet_activity_table.setModel(internet_activity_table_model)
 
 # Setup the log checker thread and start it
 def ui_log_refresh():
-    if auditter is not None:
-        while True:
-            try:
-                hdl_entry = auditter_queue.get_nowait()
-                hdl_row = []
-                for item in [hdl_entry["timestamp"],hdl_entry["event_id"],hdl_entry["executable"],hdl_entry["syscall"],hdl_entry["kernel_return"],hdl_entry["user_id"],hdl_entry["authed_user_id"],hdl_entry["process_id"]]:
-                    hdl_row.append(QStandardItem(str(item)))
-                disk_activity_table_model.insertRow(0,hdl_row)
-            except Exception:
-                break
+    while True:
+        try:
+            hdl_entry = auditter_queue.get_nowait()
+            hdl_row = []
+            for item in [hdl_entry["timestamp"],hdl_entry["event_id"],hdl_entry["executable"],hdl_entry["syscall"],hdl_entry["kernel_return"],hdl_entry["user_id"],hdl_entry["authed_user_id"],hdl_entry["process_id"]]:
+                hdl_row.append(QStandardItem(str(item)))
+            disk_activity_table_model.insertRow(0,hdl_row)
+        except Exception:
+            break
     while True:
         try:
             net_entry = packetsniffer_queue.get_nowait()
