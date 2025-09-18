@@ -158,7 +158,6 @@ def write_intercepted_packet_to_log(intercepted_packet : Packet):
         None
     """
     global entry
-
     # "instance data"
     timestamp = intercepted_packet.time
     protocol : str
